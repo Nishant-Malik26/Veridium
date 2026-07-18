@@ -4,14 +4,11 @@ import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 
-import java.util.UUID;
-
 @Value
 @Builder
 @Jacksonized
-public class UserDto {
-    String last_name;
+public class LoginRequestDto {
     String email;
-    UUID id;
-    String first_name;
+    String password;
+    String tenantSlug;
 }

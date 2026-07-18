@@ -9,9 +9,8 @@ import java.util.UUID;
 @Value
 @Builder
 @Jacksonized
-public class UserDto {
-    String last_name;
-    String email;
+public class RoleDto {
     UUID id;
-    String first_name;
+    String name;
+    String description;
 }
