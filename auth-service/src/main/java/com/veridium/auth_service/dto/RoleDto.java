@@ -1,16 +1,7 @@
 package com.veridium.auth_service.dto;
 
-import lombok.Builder;
-import lombok.Value;
-import lombok.extern.jackson.Jacksonized;
-
 import java.util.UUID;
 
-@Value
-@Builder
-@Jacksonized
-public class RoleDto {
-    UUID id;
-    String name;
-    String description;
+
+public record RoleDto(UUID id, String name, String description) {
 }

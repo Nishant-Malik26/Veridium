@@ -41,7 +41,7 @@ public class RoleService {
         Role role = roleRepository.findByName(roleName)
                                   .orElseThrow(() -> new RoleNotFoundException(roleName));
 
-        if (!userRoleRepository.existsByTenantAndUserAndRole(user, tenant, role)) {
+        if (!userRoleRepository.existsByTenantAndUserAndRole(tenant, user, role)) {
             UserRole userRole = new UserRole(user, tenant, role);
             UserRole savedUserRole = userRoleRepository.save(userRole);
             return AssignRoleDto.builder()

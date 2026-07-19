@@ -1,5 +1,6 @@
 package com.veridium.auth_service.service;
 
+import com.veridium.auth_service.constants.SuccessMessages;
 import com.veridium.auth_service.dto.*;
 import com.veridium.auth_service.entity.Tenant;
 import com.veridium.auth_service.entity.User;
@@ -26,47 +27,30 @@ public class AuthService {
     private final JwtService jwtService;
 
     public LoginResponseDto login(LoginRequestDto loginRequestDto) {
-        User user = userRepository.findByEmail(loginRequestDto.getEmail())
+        User user = userRepository.findByEmail(loginRequestDto.email())
                                   .orElseThrow(InvalidCredentialsException::new);
-        if (!passwordEncoder.matches(loginRequestDto.getPassword(), user.getPassword_hash())) {
+        if (!passwordEncoder.matches(loginRequestDto.password(), user.getPassword_hash())) {
             throw new InvalidCredentialsException();
         }
         if (!user.isEnabled()) {
             throw new UserAccountDisabled();
         }
 
-        Tenant tenant = tenantRepository.findBySlug(loginRequestDto.getTenantSlug())
+        Tenant tenant = tenantRepository.findBySlug(loginRequestDto.tenantSlug())
                                         .orElseThrow(TenantNotFoundException::new);
 
         UserRole userRole = userRoleRepository.findByUserIdAndTenantId(user.getId(), tenant.getId())
                                               .orElseThrow(UserNotPartOfTenantException::new);
-        UserDto userDto = UserDto.builder()
-                                 .id(user.getId())
-                                 .email(user.getEmail())
-                                 .first_name(user.getFirst_name())
-                                 .last_name(user.getLast_name())
-                                 .build();
-        TenantDto tenantDto = TenantDto.builder()
-                                       .id(tenant.getId())
-                                       .slug(tenant.getSlug())
-                                       .status(tenant.getStatus())
-                                       .build();
+        UserDto userDto = new UserDto(user.getId(), user.getEmail(), user.getFirst_name(), user.getLast_name());
+        TenantDto tenantDto = new TenantDto(tenant.getId(), tenant.getSlug(), tenant.getStatus());
+        RoleDto roleDto = new RoleDto(userRole.getRole()
+                                              .getId(), userRole.getRole()
+                                                                .getName(), userRole.getRole()
+                                                                                    .getDescription());
 
-        RoleDto roleDto = RoleDto.builder()
-                                 .id(userRole.getRole()
-                                             .getId())
-                                 .name(userRole.getRole()
-                                               .getName())
-                                 .description(userRole.getRole()
-                                                      .getDescription())
-                                 .build();
         String accessToken = jwtService.createJwtWithClaims(userDto, tenantDto);
-        return LoginResponseDto.builder()
-                               .accessToken(accessToken)
-                               .userDto(userDto)
-                               .tenantDto(tenantDto)
-                               .roleDto(roleDto)
-                               .build();
+        return new LoginResponseDto(accessToken, null, SuccessMessages.USER_LOGGED_IN_SUCCESSFULLY, userDto, tenantDto, roleDto);
+
 
     }
 }

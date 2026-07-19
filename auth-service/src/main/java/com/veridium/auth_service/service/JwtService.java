@@ -61,18 +61,18 @@ public class JwtService {
 
     public String createJwtWithClaims(UserDto user, TenantDto tenant) {
         Map<String, Object> claims = new HashMap<>();
-        UserRole userRole = userRoleRepository.findByUserIdAndTenantId(user.getId(), tenant.getId())
+        UserRole userRole = userRoleRepository.findByUserIdAndTenantId(user.id(), tenant.id())
                                               .orElseThrow(RoleNotFoundException::new);
 
-        claims.put("userId", user.getId());
-        claims.put("email", user.getEmail());
-        claims.put("tenantId", tenant.getId());
-        claims.put("tenantSlug", tenant.getSlug());
+        claims.put("userId", user.id());
+        claims.put("email", user.email());
+        claims.put("tenantId", tenant.id());
+        claims.put("tenantSlug", tenant.slug());
         claims.put("role", userRole.getRole()
                                    .getName());
         return Jwts.builder()
                    .claims(claims)
-                   .subject(user.getEmail())
+                   .subject(user.email())
                    .issuedAt(new Date())
                    .expiration(new Date(System.currentTimeMillis() + expiration))
                    .signWith(getSigningKey())

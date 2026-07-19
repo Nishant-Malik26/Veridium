@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @Repository
 public interface UserRoleRepository extends JpaRepository<UserRole, UUID> {
-    boolean existsByTenantAndUserAndRole(User user, Tenant tenant, Role role);
+    boolean existsByTenantAndUserAndRole(Tenant tenant, User user, Role role);
 
     List<UserRole> findByUser(User user);
 

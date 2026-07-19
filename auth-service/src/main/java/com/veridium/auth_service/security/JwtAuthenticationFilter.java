@@ -18,6 +18,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+import static com.veridium.auth_service.constants.Constants.PUBLIC_ENDPOINTS;
+
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -27,6 +29,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
+            String requestPath = request.getServletPath();
+
+            if (PUBLIC_ENDPOINTS.stream()
+                                .anyMatch(requestPath::startsWith)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
             String authorizationToken = request.getHeader("Authorization");
             if (!StringUtils.hasText(authorizationToken) || !authorizationToken.startsWith("Bearer ")) {
                 filterChain.doFilter(request, response);
