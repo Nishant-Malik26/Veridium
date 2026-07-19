@@ -18,13 +18,9 @@ public class UserService {
     }
 
     public UserDto createUser(UserCreationRequest registrationRequest) {
-        User user = new User(registrationRequest.getFirst_name(), registrationRequest.getLast_name(), registrationRequest.getEmail(), passwordEncoder.encode(registrationRequest.getPassword()));
+        User user = new User(registrationRequest.first_name(), registrationRequest.last_name(), registrationRequest.email(), passwordEncoder.encode(registrationRequest.password()));
         User savedUser = userRepository.save(user);
-        return UserDto.builder()
-                      .id(savedUser.getId())
-                      .email(savedUser.getEmail())
-                      .first_name(savedUser.getFirst_name())
-                      .last_name(savedUser.getLast_name())
-                      .build();
+        return new UserDto(savedUser.getId(), savedUser.getEmail(), savedUser.getFirst_name(), savedUser.getLast_name());
+
     }
 }

@@ -22,25 +22,15 @@ public class TenantService {
     }
 
     public RegistrationResponse createTenant(RegistrationRequest registrationRequest) {
-        String slug = generateSlug.generateUniqueSlug(registrationRequest.getCompanyName());
-        Tenant tenant = new Tenant(registrationRequest.getCompanyName(), slug);
+        String slug = generateSlug.generateUniqueSlug(registrationRequest.companyName());
+        Tenant tenant = new Tenant(registrationRequest.companyName(), slug);
         Tenant savedTenant = tenantRepository.save(tenant);
-        UserCreationRequest userCreationRequest = UserCreationRequest.builder()
-                                                                     .email(registrationRequest.getEmail())
-                                                                     .tenantSlug(tenant.getSlug())
-                                                                     .first_name(registrationRequest.getFirstName())
-                                                                     .last_name(registrationRequest.getLastName())
-                                                                     .password(registrationRequest.getPassword())
-                                                                     .build();
+        UserCreationRequest userCreationRequest = new UserCreationRequest(registrationRequest.email(), tenant.getSlug(), registrationRequest.firstName(), registrationRequest.lastName(), registrationRequest.password());
         UserDto savedUser = userService.createUser(userCreationRequest);
 
-        AssignRoleDto roleDetails = roleService.assignRole(savedUser.getId(), savedTenant.getId(), Constants.TENANT_ADMIN);
+        AssignRoleDto roleDetails = roleService.assignRole(savedUser.id(), savedTenant.getId(), Constants.TENANT_ADMIN);
 
-
-        return RegistrationResponse.builder()
-                                   .tenantSlug(slug)
-                                   .build();
-
+        return new RegistrationResponse(slug);
 
     }
 }
