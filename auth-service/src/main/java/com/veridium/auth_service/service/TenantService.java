@@ -25,7 +25,7 @@ public class TenantService {
         String slug = generateSlug.generateUniqueSlug(registrationRequest.companyName());
         Tenant tenant = new Tenant(registrationRequest.companyName(), slug);
         Tenant savedTenant = tenantRepository.save(tenant);
-        UserCreationRequest userCreationRequest = new UserCreationRequest(registrationRequest.email(), tenant.getSlug(), registrationRequest.firstName(), registrationRequest.lastName(), registrationRequest.password());
+        UserCreationRequest userCreationRequest = new UserCreationRequest(tenant.getSlug() , registrationRequest.firstName(), registrationRequest.lastName(),registrationRequest.email(), registrationRequest.password());
         UserDto savedUser = userService.createUser(userCreationRequest);
 
         AssignRoleDto roleDetails = roleService.assignRole(savedUser.id(), savedTenant.getId(), Constants.TENANT_ADMIN);

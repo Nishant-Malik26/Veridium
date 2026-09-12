@@ -9,26 +9,22 @@ import java.util.UUID;
 
 @Entity
 @Getter
-public class RefreshToken {
+@Table(name = "password-reset-otp")
+public class PasswordResetOtp {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(unique = true, nullable = false,name = "refresh_token")
-    private String refreshToken;
-    @Column(name ="user_id")
+    @Column(name = "user_id")
     private UUID userId;
+    private String otpHash;
     @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMPTZ")
     private OffsetDateTime createdAt;
-    private String device;
-    private String ipAddress;
-    private boolean revoked;
+    private boolean used;
 
-    public RefreshToken(String refreshToken, UUID userId, String device, String ipAddress, boolean revoked) {
-        this.refreshToken = refreshToken;
+    public PasswordResetOtp(UUID userId, String otpHash, boolean used) {
         this.userId = userId;
-        this.device = device;
-        this.ipAddress = ipAddress;
-        this.revoked = revoked;
+        this.otpHash = otpHash;
+        this.used = used;
     }
 
 
@@ -36,5 +32,4 @@ public class RefreshToken {
     protected void onCreate() {
         this.createdAt = OffsetDateTime.now();
     }
-
 }
