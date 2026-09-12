@@ -1,7 +1,37 @@
 spring:
   application:
     name: auth-service
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+    virtual-host: /
+    connection-timeout: 3000ms
+    template:
+      retry:
+        enabled: true
+        initial-interval: 1000ms
+        max-attempts: 3
 
+
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration: ${JWT_EXPIRATION}
+  smtp:
+    mail:
+      host: ${MAIL_HOST}
+      port: ${MAIL_PORT}
+      username: ${MAIL_USERNAME}
+      password: ${MAIL_PASSWORD}
+      properties:
+        mail:
+          smtp:
+            auth: true
+            starttls:
+              enable: true
+
+  
   datasource:
     driver-class-name: org.postgresql.Driver
 
@@ -20,3 +50,14 @@ spring:
   sql:
     init:
       mode: never
+
+app:
+  rabbitmq:
+    invitation-exchange: email.invitation.exchange
+    invitation-routing-key: email.invitation.routing.key
+    invitation-queue: email.invitation.queue
+    forgot-password-queue: email.forgot.password.queue
+    forgot-password-exchange: email.forgot.password.exchange
+    forgot-password-routing-key: email.forgot.password.routing.key
+
+

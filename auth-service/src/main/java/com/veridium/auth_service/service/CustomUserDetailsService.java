@@ -5,6 +5,7 @@ import com.veridium.auth_service.entity.UserRole;
 import com.veridium.auth_service.repository.UserRepository;
 import com.veridium.auth_service.repository.UserRoleRepository;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

@@ -1,6 +1,8 @@
 package com.veridium.auth_service.constants;
 
 public class ErrorMessages {
+
+
     private ErrorMessages() {
     }
 
@@ -20,6 +22,12 @@ public class ErrorMessages {
     public static final String USER_ACCOUNT_DISABLED = "This user is account disabled.Please contact administrator";
 
     public static final String USER_NOT_PART_OF_TENANT = "The user is not a part of this tenant.";
+    public static final String EMAIL_REQUIRED = "Email is required.";
+    public static final String PASSWORD_REQUIRED = "Password is required.";
+    public static final String TENANT_SLUG_REQUIRED = "Tenant Slug is required.";
+    public static final String EMAIL_FORMAT_NOT_CORRECT = "Email format is not correct.";
+
+    public static final String INVITATION_NOT_FOUND = "Invitation not found or expired.Please contact administrator";
 
 
 }

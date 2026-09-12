@@ -15,5 +15,8 @@ public class Constants {
     public static final String PATH = "path";
     public static final String UNAUTHORIZED = "Unauthorized";
     public static final String FORBIDDEN = "Forbidden";
-    public static final List<String> PUBLIC_ENDPOINTS = Arrays.asList("/auth/logout", "/auth/login", "/auth/register", "/auth/tenant/register", "/actuator/health", "/swagger-ui", "/v3/api-docs");
+    public static final String FORGOT_PASSWORD = "Forbidden";
+    public static final List<String> PUBLIC_ENDPOINTS = Arrays.asList("/auth/logout", "/auth/login", "/auth/register", "/auth/tenant/register", "/actuator/health", "/swagger-ui", "/v3/api-docs", "/auth/forgot-password", "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**");
+    public static final int MAX_RETRY = 1;
+
 }
