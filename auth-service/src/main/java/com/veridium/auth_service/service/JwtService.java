@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -54,20 +55,22 @@ public class JwtService {
     }
 
     public boolean isTokenExpired(String jwt) {
-        return extractClaim(jwt, "expiration", Date.class).before(new Date());
+        return extractAllClaims(jwt)
+                .getExpiration()
+                .before(new Date());
     }
 
     public String createJwtWithClaims(UserDto user, TenantDto tenant) {
         Map<String, Object> claims = new HashMap<>();
-        UserRole userRole = userRoleRepository.findByUserIdAndTenantId(user.id(), tenant.id())
-                                              .orElseThrow(RoleNotFoundException::new);
-
+        List<UserRole> userRole = userRoleRepository.findByUserIdAndTenantId(user.id(), tenant.id());
+        List<String> roles = userRole.stream()
+                                      .map(ur -> ur.getRole().getName())
+                                      .toList();
         claims.put("userId", user.id());
         claims.put("email", user.email());
         claims.put("tenantId", tenant.id());
         claims.put("tenantSlug", tenant.slug());
-        claims.put("role", userRole.getRole()
-                                   .getName());
+        claims.put("role", roles);
         return Jwts.builder()
                    .claims(claims)
                    .subject(user.email())

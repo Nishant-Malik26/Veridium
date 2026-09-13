@@ -15,6 +15,7 @@ import com.veridium.auth_service.repository.UserRepository;
 import com.veridium.auth_service.repository.UserRoleRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -53,6 +54,33 @@ public class RoleService {
         } else {
             throw new UserRoleAlreadyExistsException();
         }
+
+    }
+
+    public List<AssignRoleDto> assignRoles(List<Role> roles, UUID userId, UUID tenantId) {
+        User user = userRepository.findById(userId)
+                                  .orElseThrow(UserNotFoundException::new);
+
+        Tenant tenant = tenantRepository.findById(tenantId)
+                                        .orElseThrow(TenantNotFoundException::new);
+
+        List<Role> roleList = roles.stream().map(r-> roleRepository.findByName(r.getName())
+                                  .orElseThrow(() -> new RoleNotFoundException(r.getName()))).toList();
+
+        return  roleList.stream().map(role -> {
+            if (!userRoleRepository.existsByTenantAndUserAndRole(tenant, user, role)) {
+                UserRole userRole = new UserRole(user, tenant, role);
+                UserRole savedUserRole = userRoleRepository.save(userRole);
+                return AssignRoleDto.builder()
+                                    .roleID(savedUserRole.getId())
+                                    .userId(user.getId())
+                                    .tenantId(tenant.getId())
+                                    .userRoleID(savedUserRole.getId())
+                                    .build();
+            } else {
+                throw new UserRoleAlreadyExistsException();
+            }
+            }).toList();
 
     }
 }

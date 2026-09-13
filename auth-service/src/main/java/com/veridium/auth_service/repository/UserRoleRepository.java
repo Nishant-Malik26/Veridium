@@ -17,5 +17,13 @@ public interface UserRoleRepository extends JpaRepository<UserRole, UUID> {
 
     List<UserRole> findByUser(User user);
 
-    Optional<UserRole> findByUserIdAndTenantId(UUID userId, UUID tenantId);
+    List<UserRole> findByUserIdAndTenantId(UUID userId, UUID tenantId);
+
+    List<UserRole> findByUserEmailAndTenantSlug(
+            String email,
+            String tenantSlug
+    );
+
+    List<UserRole> findByTenantIdAndRoleId(UUID tenantId, UUID roleId);
+
 }

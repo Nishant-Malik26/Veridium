@@ -1,5 +1,6 @@
 package com.veridium.auth_service.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.veridium.auth_service.constants.ErrorMessages;
 import com.veridium.auth_service.constants.SuccessMessages;
 import com.veridium.auth_service.dto.*;
@@ -7,6 +8,7 @@ import com.veridium.auth_service.exception.user.InvalidCredentialsException;
 import com.veridium.auth_service.service.AuthService;
 import com.veridium.auth_service.service.ForgotPasswordService;
 import com.veridium.auth_service.service.InvitationService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -42,10 +44,17 @@ public class AuthController {
 
         }
     }
+
+    @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/send-invitation")
     public ResponseEntity<?> sendInvitation(@RequestBody UserInvitationSendRequest userInvitationSendRequest) {
-        if(invitationService.sendInvitation(userInvitationSendRequest)){
-            return ResponseEntity.ok().build();
+        try {
+            if(invitationService.sendInvitation(userInvitationSendRequest)){
+                return ResponseEntity.ok().build();
+            }
+        }
+        catch (JsonProcessingException _){
+
         }
         return ResponseEntity.badRequest()
                              .build();

@@ -18,11 +18,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor
 public class ForgotPasswordService {
     private final UserRepository userRepository;
+    private final UserRoleRepository userRoleRepository;
     private final RabbitTemplate rabbitTemplate;
     private final TenantRepository tenantRepository;
     private final OtpGenerator otpGenerator;
@@ -41,8 +44,12 @@ public class ForgotPasswordService {
     public String forgotPassword(ForgotPasswordDto forgotPasswordDto) throws JsonProcessingException {
         String email = forgotPasswordDto.email();
         String tenantSlug = forgotPasswordDto.tenantSlug();
-        User user = userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
-        Tenant tenant = tenantRepository.findBySlug(tenantSlug).orElseThrow(TenantNotFoundException::new);
+        List<UserRole> userRoleList = userRoleRepository.findByUserEmailAndTenantSlug(email, tenantSlug);
+        if(userRoleList.isEmpty()){
+            throw new UserNotFoundException();
+        }
+        User user = userRoleList.getFirst().getUser();
+        Tenant tenant = userRoleList.getFirst().getTenant();
         String otp = otpGenerator.generateOtp();
         String otpHash = Hash.hashify(otp);
         PasswordResetOtp passwordResetOtp = new PasswordResetOtp(user.getId(), otpHash, false);
@@ -52,7 +59,7 @@ public class ForgotPasswordService {
         ObjectMapper objectMapper = new ObjectMapper();
 
 
-        OutboxEvent outboxEvent = new OutboxEvent("USER", user.getId(), Constants.FORGOT_PASSWORD,exchange,routingKey, objectMapper.writeValueAsString(forgotPasswordEmailEvent));
+        OutboxEvent outboxEvent = new OutboxEvent(Constants.USER, user.getId().toString(), forgotPasswordEmailEvent.getClass().getName(),exchange,routingKey, objectMapper.writeValueAsString(forgotPasswordEmailEvent));
         outboxRepository.save(outboxEvent);
 
       //  rabbitTemplate.convertAndSend(exchange, routingKey, forgotPasswordEmailEvent);

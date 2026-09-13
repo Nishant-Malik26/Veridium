@@ -1,4 +1,6 @@
 package com.veridium.auth_service.dto;
 
-public record UserInvitationAcceptRequest(String token, String tenantId) {
+import java.util.UUID;
+
+public record UserInvitationAcceptRequest(String token, UUID tenantId) {
 }

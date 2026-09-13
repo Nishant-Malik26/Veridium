@@ -1,13 +1,14 @@
 package com.veridium.auth_service.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.veridium.auth_service.constants.Constants;
+import com.veridium.auth_service.dto.UserSentRequestDto;
 import com.veridium.auth_service.entity.OutboxEvent;
 import com.veridium.auth_service.repository.OutboxRepository;
 import com.veridium.auth_service.utils.OutboxStatus;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -25,14 +26,19 @@ public class MessageScheduler {
     }
 
     @Scheduled(fixedRate = 60000)
-    @Transactional
-    public void executeTask() {
-        try{
+    public void processForgotPasswordEmail() {
             List<OutboxEvent> events = outboxRepository.findByStatusIn(targetStatuses);
             events.forEach((evt)-> {
                 if(evt.getRetryCount() <= Constants.MAX_RETRY){
                     try{
-                        rabbitTemplate.convertAndSend(evt.getExchange(),evt.getRoutingKey(),evt.getPayload());
+                        Class<?> eventClass = Class.forName(evt.getEventType());
+                        ObjectMapper objectMapper = new ObjectMapper();
+                        Object payload =  objectMapper.readValue(
+                                evt.getPayload(),
+                                eventClass
+
+                        );
+                        rabbitTemplate.convertAndSend(evt.getExchange(),evt.getRoutingKey(),payload);
                         evt.markPublished();
                     }
                     catch (Exception e){
@@ -42,10 +48,6 @@ public class MessageScheduler {
 
             });
             outboxRepository.saveAll(events);
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-
     }
+
 }
