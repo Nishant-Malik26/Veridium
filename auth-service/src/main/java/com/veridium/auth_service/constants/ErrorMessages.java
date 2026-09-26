@@ -28,6 +28,8 @@ public class ErrorMessages {
     public static final String EMAIL_FORMAT_NOT_CORRECT = "Email format is not correct.";
 
     public static final String INVITATION_NOT_FOUND = "Invitation not found or expired.Please contact administrator";
-
-
+    public static final String PASSWORD_RESET_TOKEN_NOT_FOUND = "Password reset token not found or expired.Please contact administrator";
+    public static final String PASSWORD_AND_CONFIRM_PASSWORD_NOT_MATCH = "Password and Confirm password do not match";
+    public static final String NEW_PASSWORD_CANNOT_BE_SAME_AS_OLD_PASSWORD = "New password cannot be same as the old password";
+    public static final String ENTERED_OLD_PASSWORD_WRONG = "Entered old password is wrong";
 }

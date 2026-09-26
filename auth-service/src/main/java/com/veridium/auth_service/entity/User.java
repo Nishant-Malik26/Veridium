@@ -29,4 +29,8 @@ public class User {
         this.password_hash = password_hash;
         enabled = true;
     }
+
+    public void updatePassword(String newPassword){
+        this.password_hash = newPassword;
+    }
 }

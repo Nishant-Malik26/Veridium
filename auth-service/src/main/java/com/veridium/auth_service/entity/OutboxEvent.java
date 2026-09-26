@@ -46,6 +46,7 @@ public class OutboxEvent {
     private LocalDateTime createdAt;
 
     @Column(name = "published_at")
+    //TODO use insert and updatable sorta thing
     private LocalDateTime publishedAt;
 
     @PrePersist

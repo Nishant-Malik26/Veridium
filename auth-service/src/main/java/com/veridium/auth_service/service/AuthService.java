@@ -5,10 +5,8 @@ import com.veridium.auth_service.dto.*;
 import com.veridium.auth_service.entity.Tenant;
 import com.veridium.auth_service.entity.User;
 import com.veridium.auth_service.entity.UserRole;
-import com.veridium.auth_service.exception.tenant.TenantNotFoundException;
 import com.veridium.auth_service.exception.user.InvalidCredentialsException;
 import com.veridium.auth_service.exception.user.UserAccountDisabled;
-import com.veridium.auth_service.exception.user.UserNotFoundException;
 import com.veridium.auth_service.exception.user.UserNotPartOfTenantException;
 import com.veridium.auth_service.repository.TenantRepository;
 import com.veridium.auth_service.repository.UserRepository;
@@ -17,7 +15,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.*;
 
 @Service
 @RequiredArgsConstructor

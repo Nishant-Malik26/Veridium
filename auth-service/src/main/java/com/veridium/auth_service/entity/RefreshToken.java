@@ -31,6 +31,9 @@ public class RefreshToken {
         this.revoked = revoked;
     }
 
+    public void setRevoked(boolean revoked) {
+        this.revoked = revoked;
+    }
 
     @PrePersist
     protected void onCreate() {
