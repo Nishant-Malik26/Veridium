@@ -4,12 +4,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.veridium.auth_service.constants.ErrorMessages;
 import com.veridium.auth_service.constants.SuccessMessages;
 import com.veridium.auth_service.dto.*;
+import com.veridium.auth_service.entity.RefreshToken;
 import com.veridium.auth_service.exception.user.InvalidCredentialsException;
+import com.veridium.auth_service.repository.RefreshTokenRepository;
 import com.veridium.auth_service.security.TenantAuthenticationToken;
 import com.veridium.auth_service.service.*;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -23,6 +26,9 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.lang.System;
+import org.springframework.http.HttpCookie;
+
+import static org.springframework.http.HttpHeaders.SET_COOKIE;
 
 
 @RestController
@@ -34,6 +40,7 @@ public class AuthController {
     private final ForgotPasswordService forgotPasswordService;
     private final ResetPasswordService resetPasswordService;
     private final UpdatePasswordService updatePasswordService;
+    private  final RefreshTokenService refreshTokenService;
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<?>> login(@Valid @RequestBody LoginRequestDto loginRequestDto) {
@@ -44,7 +51,9 @@ public class AuthController {
                                                                 .message(SuccessMessages.USER_LOGGED_IN_SUCCESSFULLY)
                                                                 .data(responseDto)
                                                                 .build();
-            return ResponseEntity.status(HttpStatus.OK)
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(SET_COOKIE,responseDto.refreshToken());
+            return ResponseEntity.status(HttpStatus.OK).headers(headers)
                                  .body(response);
         } catch (BadCredentialsException | InvalidCredentialsException ex) {
             return ResponseEntity.badRequest()
@@ -132,6 +141,12 @@ public class AuthController {
             return ResponseEntity.ok().build();
             //TODO return proper response
         }
+    }
+
+    @PostMapping("/get-refresh-token")
+    public ResponseEntity<RefreshTokenDto> getAccessToken(@CookieValue("refreshToken") String refreshTokenDto){
+        System.out.println(refreshTokenDto);
+        return ResponseEntity.status(HttpStatus.OK).body(refreshTokenService.getRefreshToken(refreshTokenDto));
     }
 
 

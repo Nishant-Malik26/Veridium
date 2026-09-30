@@ -10,7 +10,7 @@ spring:
       ddl-auto: update
 
 
-logging:
-  level:
-    org.hibernate.SQL: DEBUG
+#logging:
+#  level:
+#    org.hibernate.SQL: DEBUG
 

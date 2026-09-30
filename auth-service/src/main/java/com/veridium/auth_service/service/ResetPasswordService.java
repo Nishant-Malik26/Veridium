@@ -23,6 +23,7 @@ public class ResetPasswordService {
 
     @Transactional
     public boolean resetPassword(ResetPasswordDto resetPasswordDto) {
+        //TODO this logic needs to be checked
         RefreshToken refreshToken = refreshTokenRepository.findByRefreshToken(resetPasswordDto.token()).orElseThrow(TokenNotFoundException::new);
         if(refreshToken.isRevoked()){
             throw new TokenNotFoundException();

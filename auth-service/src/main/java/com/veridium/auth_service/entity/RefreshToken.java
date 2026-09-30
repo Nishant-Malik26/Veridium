@@ -2,6 +2,7 @@ package com.veridium.auth_service.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 //import org.springframework.data.annotation.Id;
 
 import java.time.OffsetDateTime;
@@ -9,6 +10,7 @@ import java.util.UUID;
 
 @Entity
 @Getter
+@NoArgsConstructor
 public class RefreshToken {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

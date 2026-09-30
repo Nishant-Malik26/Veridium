@@ -20,6 +20,7 @@ public class Constants {
     public static final List<String> PUBLIC_ENDPOINTS = Arrays.asList("/auth/logout", "/auth/login", "/auth/register",
                                                                       "/auth/tenant/register", "/actuator/health",
                                                                       "/auth/accept-invitation",
+                                                                      "/auth/get-refresh-token",
                                                                       "/swagger-ui", "/v3/api-docs", "/auth/forgot-password",
                                                                       "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**");
     public static final int MAX_RETRY = 1;

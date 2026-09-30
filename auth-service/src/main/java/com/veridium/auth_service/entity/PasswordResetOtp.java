@@ -2,6 +2,7 @@ package com.veridium.auth_service.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 //import org.springframework.data.annotation.Id;
 
 import java.time.OffsetDateTime;
@@ -10,6 +11,7 @@ import java.util.UUID;
 @Entity
 @Getter
 @Table(name = "password-reset-otp")
+@NoArgsConstructor
 public class PasswordResetOtp {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
