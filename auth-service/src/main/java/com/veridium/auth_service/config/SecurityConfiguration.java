@@ -20,6 +20,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import static com.veridium.auth_service.constants.Constants.PUBLIC_ENDPOINTS;
+
 @Configuration
 @EnableMethodSecurity
 @RequiredArgsConstructor
@@ -43,7 +45,7 @@ public class SecurityConfiguration {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .exceptionHandling(exception -> exception.authenticationEntryPoint(authenticationEntryPoint)
                                                      .accessDeniedHandler(accessDeniedHandler))
-            .authorizeHttpRequests(auth -> auth.requestMatchers("/auth/login", "/auth/refresh", "/auth/logout", "/auth/tenant/register", "/actuator/health", "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**")
+            .authorizeHttpRequests(auth -> auth.requestMatchers(PUBLIC_ENDPOINTS.toArray(new String[0]))
                                                .permitAll()
                                                .anyRequest()
                                                .authenticated())

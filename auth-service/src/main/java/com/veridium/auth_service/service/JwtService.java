@@ -22,9 +22,7 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class JwtService {
-    //private final UserRepository userRepository;
     private final UserRoleRepository userRoleRepository;
-    //private final TenantRepository tenantRepository;
 
     @Value("${jwt.secret}")
     private String secret;

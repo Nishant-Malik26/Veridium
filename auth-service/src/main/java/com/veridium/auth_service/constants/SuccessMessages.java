@@ -7,5 +7,6 @@ public final class SuccessMessages {
 
     public static final String TENANT_CREATE_SUCCESSFULLY = "Tenant created successfully";
     public static final String USER_LOGGED_IN_SUCCESSFULLY = "User logged in successfully";
+    public static final String FORGOT_PASSWORD_SUCCESSFULLY = "Forgot password successfully";
 
 }
