@@ -61,4 +61,3 @@ app:
     forgot-password-routing-key: email.forgot.password.routing.key
 
 
-

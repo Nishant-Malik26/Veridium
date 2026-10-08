@@ -20,6 +20,7 @@ public class UserController {
         this.userService = userService;
     }
 
+    @PostMapping("/createUser")
     public ResponseEntity<ApiResponse<UserDto>> createUser(@RequestBody UserCreationRequest userCreationRequest) {
         UserDto user = userService.createUser(userCreationRequest);
 
