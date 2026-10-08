@@ -20,7 +20,7 @@ public class OutboxEvent {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String aggregateType;
-    private UUID aggregateId;
+    private String aggregateId;
     private String eventType;
     private String exchange;
     @Column(name = "routing_key")
@@ -42,15 +42,14 @@ public class OutboxEvent {
     @Column(name = "last_error")
     private String lastError;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", insertable = false, updatable = false, nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "published_at")
+    @Column(name = "published_at", insertable = false )
     private LocalDateTime publishedAt;
 
     @PrePersist
     public void prePersist() {
-        createdAt = LocalDateTime.now();
         status = OutboxStatus.PENDING;
         retryCount = 0;
     }
@@ -69,7 +68,7 @@ public class OutboxEvent {
 
     public OutboxEvent(
             String aggregateType,
-            UUID aggregateId,
+            String aggregateId,
             String eventType,
             String exchangeName,
             String routingKey,

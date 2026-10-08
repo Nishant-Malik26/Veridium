@@ -3,8 +3,10 @@ package com.veridium.auth_service.entity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.UUID;
 
@@ -18,6 +20,7 @@ public class User {
     private String first_name;
     private String last_name;
     private String email;
+    @Setter
     private String password_hash;
     private boolean enabled;
 
@@ -28,5 +31,9 @@ public class User {
         this.email = email;
         this.password_hash = password_hash;
         enabled = true;
+    }
+
+    public void updatePassword(String newPassword){
+        this.password_hash = newPassword;
     }
 }

@@ -1,5 +1,6 @@
 package com.veridium.auth_service.config;
 
+import com.veridium.auth_service.security.CustomAuthenticationProvider;
 import com.veridium.auth_service.security.JwtAccessDeniedHandler;
 import com.veridium.auth_service.security.JwtAuthenticationEntryPoint;
 import com.veridium.auth_service.security.JwtAuthenticationFilter;
@@ -32,9 +33,7 @@ public class SecurityConfiguration {
 
     private final JwtAccessDeniedHandler accessDeniedHandler;
 
-    private final CustomUserDetailsService userDetailsService;
-
-    private final PasswordEncoder passwordEncoder;
+    private final CustomAuthenticationProvider customAuthenticationProvider;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -49,18 +48,12 @@ public class SecurityConfiguration {
                                                .permitAll()
                                                .anyRequest()
                                                .authenticated())
-            .authenticationProvider(authenticationProvider())
+            //.oauth2Login(Customizer.withDefaults())
+            .authenticationProvider(customAuthenticationProvider)
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
 
         return http.build();
-    }
-
-    @Bean
-    public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
-        provider.setPasswordEncoder(passwordEncoder);
-        return provider;
     }
 
     @Bean

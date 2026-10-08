@@ -18,18 +18,22 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor
 public class ForgotPasswordService {
     private final UserRepository userRepository;
+    private final UserRoleRepository userRoleRepository;
     private final RabbitTemplate rabbitTemplate;
     private final TenantRepository tenantRepository;
     private final OtpGenerator otpGenerator;
-    private final PasswordResestRepository passwordResestRepository;
+    private final PasswordResetRepository passwordResetRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final RefreshTokenGenerator refreshTokenGenerator;
     private final OutboxRepository outboxRepository;
+    private final ObjectMapper objectMapper;
 
     @Value("${app.rabbitmq.forgot-password-exchange}")
     private String exchange;
@@ -38,29 +42,25 @@ public class ForgotPasswordService {
     private String routingKey;
 
     @Transactional
-    public String forgotPassword(ForgotPasswordDto forgotPasswordDto) throws JsonProcessingException {
+    public void forgotPassword(ForgotPasswordDto forgotPasswordDto)  {
         String email = forgotPasswordDto.email();
         String tenantSlug = forgotPasswordDto.tenantSlug();
-        User user = userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
-        Tenant tenant = tenantRepository.findBySlug(tenantSlug).orElseThrow(TenantNotFoundException::new);
+        List<UserRole> userRoleList = userRoleRepository.findByUserEmailAndTenantSlug(email, tenantSlug);
+        if(userRoleList.isEmpty()){
+            throw new UserNotFoundException();
+        }
+        User user = userRoleList.getFirst().getUser();
+        Tenant tenant = userRoleList.getFirst().getTenant();
         String otp = otpGenerator.generateOtp();
         String otpHash = Hash.hashify(otp);
         PasswordResetOtp passwordResetOtp = new PasswordResetOtp(user.getId(), otpHash, false);
-        passwordResestRepository.save(passwordResetOtp);
-
-        ForgotPasswordEmailEvent forgotPasswordEmailEvent = new ForgotPasswordEmailEvent(user.getEmail(), user.getFirst_name(), user.getLast_name(), otp,tenant.getName());
-        ObjectMapper objectMapper = new ObjectMapper();
-
-
-        OutboxEvent outboxEvent = new OutboxEvent("USER", user.getId(), Constants.FORGOT_PASSWORD,exchange,routingKey, objectMapper.writeValueAsString(forgotPasswordEmailEvent));
-        outboxRepository.save(outboxEvent);
-
-      //  rabbitTemplate.convertAndSend(exchange, routingKey, forgotPasswordEmailEvent);
-
-        String refreshToken = refreshTokenGenerator.generate();
-        String  refreshTokenHash = Hash.hashify(refreshToken);
-        RefreshToken refreshTokenEntity = new RefreshToken(refreshTokenHash,user.getId(),forgotPasswordDto.device(),forgotPasswordDto.ip(),false);
-        refreshTokenRepository.save(refreshTokenEntity);
-        return refreshToken;
+        passwordResetRepository.save(passwordResetOtp);
+        try {
+            ForgotPasswordEmailEvent forgotPasswordEmailEvent = new ForgotPasswordEmailEvent(user.getEmail(), user.getFirst_name(), user.getLast_name(), otp,tenant.getName());
+            OutboxEvent outboxEvent = new OutboxEvent(Constants.USER, user.getId().toString(), forgotPasswordEmailEvent.getClass().getName(),exchange,routingKey, objectMapper.writeValueAsString(forgotPasswordEmailEvent));
+            outboxRepository.save(outboxEvent);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to serialize email event", e);
+        }
     }
 }

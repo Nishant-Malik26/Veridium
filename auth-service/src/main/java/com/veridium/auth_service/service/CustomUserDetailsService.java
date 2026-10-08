@@ -18,16 +18,17 @@ import static com.veridium.auth_service.constants.ErrorMessages.USER_NOT_FOUND_W
 
 @Service
 @RequiredArgsConstructor
-public class CustomUserDetailsService implements UserDetailsService {
-    private final UserRepository userRepository;
+public class CustomUserDetailsService {
     private final UserRoleRepository userRoleRepository;
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(username)
-                                  .orElseThrow(() -> new UsernameNotFoundException(USER_NOT_FOUND_WITH_USERNAME + username));
+    public UserDetails loadUserByEmailAndTenant(String username, String tenantSlug) throws UsernameNotFoundException {
 
-        List<UserRole> userRoles = userRoleRepository.findByUser(user);
+        List<UserRole> userRoles = userRoleRepository.findByUserEmailAndTenantSlug(username, tenantSlug);
+        if(userRoles.isEmpty()) {
+            throw new UsernameNotFoundException(USER_NOT_FOUND_WITH_USERNAME);
+        }
+        User user = userRoles.getFirst().getUser();
+
         List<SimpleGrantedAuthority> authorities = userRoles.stream()
                                                             .map(userRole -> new SimpleGrantedAuthority(userRole.getRole()
                                                                                                                 .getName()))
