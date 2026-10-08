@@ -48,6 +48,7 @@ public class SecurityConfiguration {
                                                .permitAll()
                                                .anyRequest()
                                                .authenticated())
+            //.oauth2Login(Customizer.withDefaults())
             .authenticationProvider(customAuthenticationProvider)
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

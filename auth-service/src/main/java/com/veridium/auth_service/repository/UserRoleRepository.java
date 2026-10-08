@@ -24,6 +24,8 @@ public interface UserRoleRepository extends JpaRepository<UserRole, UUID> {
             String tenantSlug
     );
 
+    List<UserRole> findByTenantSlugAndUserId(String tenantSlug, UUID userId);
+
     List<UserRole> findByTenantIdAndRoleId(UUID tenantId, UUID roleId);
 
 }

@@ -27,4 +27,6 @@ public class Constants {
     public static final String INVITATION = "INVITATION";
     public static final String USER = "USER";
     public static final int INVITATION_EXPIRATION_IN_MINUTES = 30;
+    public static final int PASSWORD_RESET_EXPIRATION_TIME_IN_MINUTES = 15;
+    public static final String REFRESH_TOKEN_COOKIE = "refresh_token";
 }

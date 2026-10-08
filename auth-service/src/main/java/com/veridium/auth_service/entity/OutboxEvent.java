@@ -42,16 +42,14 @@ public class OutboxEvent {
     @Column(name = "last_error")
     private String lastError;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", insertable = false, updatable = false, nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "published_at")
-    //TODO use insert and updatable sorta thing
+    @Column(name = "published_at", insertable = false )
     private LocalDateTime publishedAt;
 
     @PrePersist
     public void prePersist() {
-        createdAt = LocalDateTime.now();
         status = OutboxStatus.PENDING;
         retryCount = 0;
     }

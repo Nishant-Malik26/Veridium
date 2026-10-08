@@ -24,4 +24,18 @@ public class Hash {
             throw new RuntimeException(e);
         }
     }
+
+    public static boolean verify(String input, String hashedValue) {
+        if (input == null || hashedValue == null) {
+            return false;
+        }
+        // Hash the input using your existing method and compare it to the target hash
+        String newInputHash = hashify(input);
+
+        // Use MessageDigest.isEqual for a time-constant comparison to protect against timing attacks
+        return MessageDigest.isEqual(
+                newInputHash.getBytes(StandardCharsets.UTF_8),
+                hashedValue.getBytes(StandardCharsets.UTF_8)
+        );
+    }
 }

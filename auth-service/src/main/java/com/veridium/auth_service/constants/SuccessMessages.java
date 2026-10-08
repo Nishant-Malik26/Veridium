@@ -10,5 +10,6 @@ public final class SuccessMessages {
     public static final String FORGOT_PASSWORD_SUCCESSFULLY = "Forgot password successfully";
     public static final String PASSWORD_RESET_SUCCESSFULLY = "Password reset successfully";
     public static final String PASSWORD_UPDATED_SUCCESSFULLY = "Password updated successfully";
+    public static final String TOKEN_REFRESHED_SUCCESSFULLY = "Token refreshed successfully";
 
 }

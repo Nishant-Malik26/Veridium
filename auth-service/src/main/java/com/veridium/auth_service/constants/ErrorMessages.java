@@ -32,4 +32,9 @@ public class ErrorMessages {
     public static final String PASSWORD_AND_CONFIRM_PASSWORD_NOT_MATCH = "Password and Confirm password do not match";
     public static final String NEW_PASSWORD_CANNOT_BE_SAME_AS_OLD_PASSWORD = "New password cannot be same as the old password";
     public static final String ENTERED_OLD_PASSWORD_WRONG = "Entered old password is wrong";
+    public static final String USER_UNAUTHENTICATED = "User is unauthenticated.";
+    public static final String INVALID_OTP = "Invalid OTP.";
+    public static final String OTP_EXPIRED = "OTP expired";
+    public static final String REFRESH_TOKEN_NOT_FOUND = "Refresh token not found. Please log in again!";
+    public static final String REFRESH_TOKEN_EXPIRED = "Refresh token expired. Please log in again!";
 }

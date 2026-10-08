@@ -4,30 +4,21 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.veridium.auth_service.constants.ErrorMessages;
 import com.veridium.auth_service.constants.SuccessMessages;
 import com.veridium.auth_service.dto.*;
-import com.veridium.auth_service.entity.RefreshToken;
-import com.veridium.auth_service.exception.user.InvalidCredentialsException;
-import com.veridium.auth_service.repository.RefreshTokenRepository;
 import com.veridium.auth_service.security.TenantAuthenticationToken;
 import com.veridium.auth_service.service.*;
+import com.veridium.auth_service.utils.AccessTokenType;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.lang.System;
-import org.springframework.http.HttpCookie;
 
+import static com.veridium.auth_service.constants.Constants.REFRESH_TOKEN_COOKIE;
+import static com.veridium.auth_service.constants.SuccessMessages.TOKEN_REFRESHED_SUCCESSFULLY;
 import static org.springframework.http.HttpHeaders.SET_COOKIE;
 
 
@@ -44,7 +35,6 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<?>> login(@Valid @RequestBody LoginRequestDto loginRequestDto) {
-        try {
             LoginResponseDto responseDto = authService.login(loginRequestDto);
             ApiResponse<LoginResponseDto> response = ApiResponse.<LoginResponseDto>builder()
                                                                 .success(true)
@@ -55,11 +45,6 @@ public class AuthController {
             headers.add(SET_COOKIE,responseDto.refreshToken());
             return ResponseEntity.status(HttpStatus.OK).headers(headers)
                                  .body(response);
-        } catch (BadCredentialsException | InvalidCredentialsException ex) {
-            return ResponseEntity.badRequest()
-                                 .body(new ApiResponse<>(false, ErrorMessages.EMAIL_OR_PASSWORD_WRONG, null));
-
-        }
     }
 
     @SecurityRequirement(name = "bearerAuth")
@@ -104,50 +89,54 @@ public class AuthController {
 
     @PostMapping("/forgot-password")
     public ResponseEntity<ApiResponse<?>> forgotPassword(@RequestBody ForgotPasswordDto forgotPasswordDto) {
-        String refreshToken = "";
-        try{
-             refreshToken = forgotPasswordService.forgotPassword(forgotPasswordDto);
-        }
-        catch  (Exception _){  }
+
+        forgotPasswordService.forgotPassword(forgotPasswordDto);
+
 
         ApiResponse<RefreshTokenDto> response = ApiResponse.<RefreshTokenDto>builder()
                                                            .success(true)
                                                            .message(SuccessMessages.FORGOT_PASSWORD_SUCCESSFULLY)
-                                                           .data(new RefreshTokenDto(refreshToken)).build();
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+                                                           .build();
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);
     }
 
+    @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/reset-password")
     public ResponseEntity<ApiResponse<?>> resetPassword(@RequestBody ResetPasswordDto resetPasswordDto){
-        if(resetPasswordService.resetPassword(resetPasswordDto)){
-            //ApiResponse<>
-            //TODO : make request response more proper
-
-
-            return ResponseEntity.ok().build();
-        }
-        else {
-            return ResponseEntity.badRequest().build();
-        }
+        RefreshTokenDto refreshTokenDto = resetPasswordService.resetPassword(resetPasswordDto);
+        ResponseCookie refreshTokenCookie = ResponseCookie.from(REFRESH_TOKEN_COOKIE, refreshTokenDto.refreshToken())
+                                                          .httpOnly(true)
+                                                          //.secure(true)
+                                                          .path("/api/auth/get-refresh-token")
+                                                          .maxAge(Duration.ofDays(7))
+                                                          .sameSite("Lax")
+                                                          .build();
+        return ResponseEntity.ok().header(SET_COOKIE, refreshTokenCookie.toString()).build();
     }
 
+    @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/change-password")
-    public ResponseEntity<?> updatePassword(@RequestBody UpdatePasswordDto updatePasswordDto, @AuthenticationPrincipal TenantAuthenticationToken authenticatedUser){
-        String errorMessage = updatePasswordService.updatePassword(updatePasswordDto, authenticatedUser);
-        if(errorMessage != null){
-            return ResponseEntity.badRequest().body(errorMessage);
-        }
-        else {
-            return ResponseEntity.ok().build();
-            //TODO return proper response
-        }
+    public ResponseEntity<ApiResponse<String>> updatePassword(@RequestBody UpdatePasswordDto updatePasswordDto, @AuthenticationPrincipal TenantAuthenticationToken authenticatedUser){
+        updatePasswordService.updatePassword(updatePasswordDto, authenticatedUser);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/get-refresh-token")
-    public ResponseEntity<RefreshTokenDto> getAccessToken(@CookieValue("refreshToken") String refreshTokenDto){
-        System.out.println(refreshTokenDto);
-        return ResponseEntity.status(HttpStatus.OK).body(refreshTokenService.getRefreshToken(refreshTokenDto));
+    public ResponseEntity<ApiResponse<AccessToken>> getAccessToken(@CookieValue("refreshToken") String refreshTokenDto, @AuthenticationPrincipal TenantAuthenticationToken authenticatedUser){
+        //TODO : As user may be unauthenticated here so tenant slug should come from header or something needs to be checked
+        var accessRefreshToken =  refreshTokenService.getRefreshToken(refreshTokenDto,authenticatedUser.getTenantSlug());
+        ResponseCookie responseCookie = ResponseCookie.from(REFRESH_TOKEN_COOKIE, accessRefreshToken.refreshToken())
+                                                      .httpOnly(true)
+                                                      .path("/api/auth/get-refresh-token")
+                                                      .maxAge(Duration.ofDays(7))
+                                                      .sameSite("Lax")
+                                                      .build();
+        return ResponseEntity.status(HttpStatus.OK)
+                             .header(SET_COOKIE, responseCookie.toString())
+                             .body(ApiResponse.<AccessToken>builder()
+                                              .message(TOKEN_REFRESHED_SUCCESSFULLY)
+                                              .data(new AccessToken(accessRefreshToken.accessToken(), AccessTokenType.BEARER))
+                                              .build());
     }
-
 
 }

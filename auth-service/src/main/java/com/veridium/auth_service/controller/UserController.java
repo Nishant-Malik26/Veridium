@@ -19,8 +19,7 @@ public class UserController {
     public UserController(UserService userService) {
         this.userService = userService;
     }
-    //TODO remove this as user facing api
-    @PostMapping("/create-user")
+
     public ResponseEntity<ApiResponse<UserDto>> createUser(@RequestBody UserCreationRequest userCreationRequest) {
         UserDto user = userService.createUser(userCreationRequest);
 

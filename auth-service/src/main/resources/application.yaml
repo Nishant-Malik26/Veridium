@@ -59,10 +59,6 @@ app:
     forgot-password-queue: email.forgot.password.queue
     forgot-password-exchange: email.forgot.password.exchange
     forgot-password-routing-key: email.forgot.password.routing.key
-logging:
-  level:
-    org.springframework.security: TRACE
-    org.springframework.security.web: TRACE
-    org.springframework.web: DEBUG
+
 
 

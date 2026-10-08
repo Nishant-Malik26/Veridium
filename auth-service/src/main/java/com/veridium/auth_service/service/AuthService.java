@@ -64,18 +64,11 @@ public class AuthService {
                 )
         ).toList();
         String refreshToken = UUID.randomUUID().toString();
+        //TODO : device type and ip must not be hardcoded
         RefreshToken refreshTokenDto = new RefreshToken(refreshToken,userDto.id(),"mobile", "192.168.30.12",false);
         refreshTokenRepository.save(refreshTokenDto);
 
-        Cookie cookie = new Cookie("refreshToken", refreshToken);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);
-        cookie.setDomain("localhost");
-        cookie.setPath("/");
-
         String accessToken = jwtService.createJwtWithClaims(userDto, tenantDto);
         return new LoginResponseDto(accessToken, refreshToken, SuccessMessages.USER_LOGGED_IN_SUCCESSFULLY, userDto, tenantDto, roles);
-
-
     }
 }
